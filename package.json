@@ -1,6 +1,6 @@
 {
   "name": "axis-hover-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Plugin to display tooltips on hover of the axis of chart.js charts.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
