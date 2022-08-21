@@ -396,10 +396,9 @@ export const axisHoverPlugin = (isVertical: boolean, fullLabels: string[]): Plug
     chart.axisHoverPlugin = {
       ...chart.axisHoverPlugin,
       ...{
-        hoveredIndex: hoveredIndex,
-        isVertical: isVertical,
+        hoveredIndex,
+        isVertical,
         label: fullHoveredLabel,
-        // label: "LEts check to see how it reacts with a reidicoxhi;oa hiuasdfhiu fasdfhjas dsdsfsdfds",
         draw: true
       }
     };
@@ -409,7 +408,7 @@ export const axisHoverPlugin = (isVertical: boolean, fullLabels: string[]): Plug
     if (!chart.axisHoverPlugin) {
       return;
     }
-    const { hoveredIndex, isVertical, label, draw, styleOpts } =
+    const { hoveredIndex, label, draw, styleOpts } =
       chart.axisHoverPlugin as Required<AxisHoverPlugin>;
     // This event also triggered by other events in chart, so need to check properties
     // trigger draw
