@@ -48,7 +48,7 @@ type BeforeEventArgs = {
   cancelable: boolean;
 };
 
-const getClosestLabelIndex = (
+export const getClosestLabelIndex = (
   relevantHoverPixel: number,
   relevantScale: Scale,
   fullLabels: string[]
