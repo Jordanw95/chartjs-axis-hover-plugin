@@ -51,7 +51,7 @@ type BeforeEventArgs = {
 export const getClosestLabelIndex = (
   relevantHoverPixel: number,
   relevantScale: Scale,
-  fullLabels: string[]
+  fullLabels: string[],
 ): number => {
   // Can assume this method will return a number here as have done relevant checks in checkValidEvent
   const hoverValue = relevantScale.getValueForPixel(relevantHoverPixel) as number;
@@ -68,7 +68,7 @@ const checkValidEvent = (
   bottom: number,
   event: ChartEvent,
   scales: Chart['scales'],
-  isVertical: boolean
+  isVertical: boolean,
 ): boolean => {
   if (event.y === null || event.x === null) {
     return false;
@@ -87,7 +87,7 @@ const drawCaret = (
   drawingCoordinates: DrawingCoordinates,
   radius: number,
   rotate: number,
-  styleOpts: StyleOpts
+  styleOpts: StyleOpts,
 ): void => {
   const { startingX, startingY } = drawingCoordinates;
   ctx.beginPath();
@@ -95,10 +95,7 @@ const drawCaret = (
   const sides = 3;
   const a = (Math.PI * 2) / sides;
   for (let i = 0; i < sides; i++) {
-    ctx.lineTo(
-      startingX + radius * Math.cos(a * i + rotate),
-      startingY + radius * Math.sin(a * i + rotate)
-    );
+    ctx.lineTo(startingX + radius * Math.cos(a * i + rotate), startingY + radius * Math.sin(a * i + rotate));
   }
   ctx.closePath();
   ctx.fillStyle = styleOpts.tooltipBackgroundColor;
@@ -106,12 +103,7 @@ const drawCaret = (
   ctx.stroke();
 };
 
-const getLines = (
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  maxWidth: number,
-  styleOpts: StyleOpts
-): string[] => {
+const getLines = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number, styleOpts: StyleOpts): string[] => {
   // This method returns the label split into lines that fit within the max
   // width that was supplied to it.
   const words = text.split(' ');
@@ -139,7 +131,7 @@ const drawTextLine = (
   x: number,
   y: number,
   textBasline: 'middle' | 'top',
-  styleOpts: StyleOpts
+  styleOpts: StyleOpts,
 ): void => {
   ctx.save();
   ctx.font = styleOpts.font;
@@ -157,7 +149,7 @@ const drawTooltipBackground = (
   h: number,
   multiLine: boolean,
   styleOpts: StyleOpts,
-  isVertical: boolean
+  isVertical: boolean,
 ): void => {
   const { textY, textX } = drawingCoordinates;
   let radius = styleOpts.tooltipBackgroundRadius;
@@ -170,15 +162,11 @@ const drawTooltipBackground = (
 
   // if it is horizontal, we want to draw from startinX + standard distance and want to adjust
   // width by difference between inital x and this new x
-  const x = isVertical
-    ? initialCornerX
-    : drawingCoordinates.startingX - styleOpts.tooltipDistanceFromZeroVertical;
+  const x = isVertical ? initialCornerX : drawingCoordinates.startingX - styleOpts.tooltipDistanceFromZeroVertical;
   const width = isVertical ? textWidth : textWidth + (initialCornerX - x);
   // if it is vertical we just want to draw with hieght  of the distance from y + initial height and
   // startingY + standardDistance
-  const height = isVertical
-    ? drawingCoordinates.startingY + styleOpts.tooltipDistanceFromZeroVertical - y
-    : textHeight;
+  const height = isVertical ? drawingCoordinates.startingY + styleOpts.tooltipDistanceFromZeroVertical - y : textHeight;
   radius = width < 2 * radius ? width / 2 : height < 2 * radius ? height / 2 : radius;
 
   ctx.beginPath();
@@ -198,7 +186,7 @@ const drawTooltip = (
   drawingCoordinates: DrawingCoordinates,
   isVertical: boolean,
   chartArea: ChartWithPlugin['chartArea'],
-  styleOpts: StyleOpts
+  styleOpts: StyleOpts,
 ): void => {
   const { right } = chartArea;
   const { textX, textY } = drawingCoordinates;
@@ -222,8 +210,7 @@ const drawTooltip = (
   // if the text would fit on one line, we measure the text directly, otherwise we assume text is same width
   // as maxTextWidth that was used in the get lines function
   ctx.font = styleOpts.font;
-  const textWidth =
-    ctx.measureText(label).width < maxTextBoxWidth ? ctx.measureText(label).width : maxTextBoxWidth;
+  const textWidth = ctx.measureText(label).width < maxTextBoxWidth ? ctx.measureText(label).width : maxTextBoxWidth;
   const textLines = getLines(ctx, label, maxTextBoxWidth, styleOpts);
   // If vertical and text would have overflown, we need to adjust the x position of text.
   // let adjustedX = textX;
@@ -240,65 +227,23 @@ const drawTooltip = (
   const textHeight = textLines.length * linesHeight;
   if (textLines.length === 1) {
     // If only one line, we can just draw one centred line
-    drawingCoordinates.textX = isVertical
-      ? drawingCoordinates.textX
-      : drawingCoordinates.textX + textWidth / 2;
-    drawTooltipBackground(
-      ctx,
-      drawingCoordinates,
-      textWidth,
-      textHeight,
-      false,
-      styleOpts,
-      isVertical
-    );
-    drawTextLine(
-      ctx,
-      textLines[0],
-      drawingCoordinates.textX,
-      drawingCoordinates.textY,
-      'middle',
-      styleOpts
-    );
+    drawingCoordinates.textX = isVertical ? drawingCoordinates.textX : drawingCoordinates.textX + textWidth / 2;
+    drawTooltipBackground(ctx, drawingCoordinates, textWidth, textHeight, false, styleOpts, isVertical);
+    drawTextLine(ctx, textLines[0], drawingCoordinates.textX, drawingCoordinates.textY, 'middle', styleOpts);
   } else {
     // If plotting vertically need to account for the fact lines are now drawn from 'top' in the Y.
     // If horizontal want to shift the text up by half it's height, so it alligns by the middle in the Y.
     // In the X, we want to begin writing lines from the middle, so add half the text width to X.
-    drawingCoordinates.textY = isVertical
-      ? textY - (textHeight - linesHeight)
-      : textY - textHeight / 2;
-    drawingCoordinates.textX = isVertical
-      ? drawingCoordinates.textX
-      : drawingCoordinates.textX + textWidth / 2;
-    drawTooltipBackground(
-      ctx,
-      drawingCoordinates,
-      textWidth,
-      textHeight,
-      true,
-      styleOpts,
-      isVertical
-    );
+    drawingCoordinates.textY = isVertical ? textY - (textHeight - linesHeight) : textY - textHeight / 2;
+    drawingCoordinates.textX = isVertical ? drawingCoordinates.textX : drawingCoordinates.textX + textWidth / 2;
+    drawTooltipBackground(ctx, drawingCoordinates, textWidth, textHeight, true, styleOpts, isVertical);
     textLines.forEach((line, i) => {
-      drawTextLine(
-        ctx,
-        line,
-        drawingCoordinates.textX,
-        drawingCoordinates.textY + i * linesHeight,
-        'top',
-        styleOpts
-      );
+      drawTextLine(ctx, line, drawingCoordinates.textX, drawingCoordinates.textY + i * linesHeight, 'top', styleOpts);
     });
   }
 };
 
-const drawLabel = (
-  chart: ChartWithPlugin,
-  index: number,
-  isVertical: boolean,
-  label: string,
-  styleOpts: StyleOpts
-) => {
+const drawLabel = (chart: ChartWithPlugin, index: number, isVertical: boolean, label: string, styleOpts: StyleOpts) => {
   const { ctx, scales, chartArea } = chart;
   // startingX and startingY allign to the 0 point on the axis, for each scale value, for horizontal and
   // vertical graphs. Adjustments used to allign caret drawing point.
@@ -316,7 +261,7 @@ const drawLabel = (
     startingX,
     startingY,
     textX,
-    textY
+    textY,
   };
   // Rotate caret needs to rotate to allign with appropraite axis
   const caretAngle = isVertical ? Math.PI * 2.5 : Math.PI;
@@ -363,13 +308,13 @@ export const axisHoverPlugin = (isVertical: boolean, fullLabels: string[]): Plug
         yScaleAdjustment: -10,
         xTextAdjustment: 10,
         yTextAdjustment: -15,
-        tooltipBackgroundColor: "#000",
-        fontColor: "#FFF",
+        tooltipBackgroundColor: '#000',
+        fontColor: '#FFF',
         boxPadding: 10,
         tooltipBackgroundRadius: 3,
         tooltipDistanceFromZeroHorizontal: -5,
-        tooltipDistanceFromZeroVertical: 5
-      }
+        tooltipDistanceFromZeroVertical: 5,
+      },
     };
   },
   beforeEvent(chart: ChartWithPlugin, args: BeforeEventArgs) {
@@ -399,8 +344,8 @@ export const axisHoverPlugin = (isVertical: boolean, fullLabels: string[]): Plug
         hoveredIndex,
         isVertical,
         label: fullHoveredLabel,
-        draw: true
-      }
+        draw: true,
+      },
     };
     chart.draw();
   },
@@ -408,14 +353,12 @@ export const axisHoverPlugin = (isVertical: boolean, fullLabels: string[]): Plug
     if (!chart.axisHoverPlugin) {
       return;
     }
-    const { hoveredIndex, label, draw, styleOpts } =
-      chart.axisHoverPlugin as Required<AxisHoverPlugin>;
+    const { hoveredIndex, label, draw, styleOpts } = chart.axisHoverPlugin as Required<AxisHoverPlugin>;
     // This event also triggered by other events in chart, so need to check properties
     // trigger draw
     if (!draw) {
       return;
     }
     drawLabel(chart, hoveredIndex, isVertical, label, styleOpts);
-  }
+  },
 });
-
