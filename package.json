@@ -2,14 +2,21 @@
   "name": "axis-hover-plugin",
   "version": "1.0.0",
   "description": "Plugin to display tooltips on hover of the axis of chart.js charts.",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "test": "jest --config jestconfig.json",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-    "lint": "tslint -p tsconfig.json"
+    "lint": "tslint -p tsconfig.json",
+    "prepare" : "npm run build",
+    "prepublishOnly" : "npm test && npm run lint",
+    "preversion" : "npm run lint",
+    "version" : "npm run format && git add -A src",
+    "postversion" : "git push && git push --tags"
   },
-  "author": "",
+  "author": "Jordan Waters",
+  "keywords": ["chartjs", "chart", "label", "axis", "hover", "plugin", "chartjs plugin"],
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^28.1.7",
