@@ -1,5 +1,6 @@
 import { Chart, ChartEvent, Scale, Plugin, FontSpec } from 'chart.js';
 
+
 /*
   Plugin to create tooltips on hover of graph. See axisHoverPlugin for overall flow.
 */
@@ -37,7 +38,7 @@ type AxisHoverPlugin = {
 };
 
 interface ChartWithPlugin extends Chart {
-  axisHoverPlugin?: AxisHoverPlugin;
+  axis_hover_plugin_state?: AxisHoverPlugin;
 }
 
 // There does not appear to be an appropriate type for the sent object in chart js, closest seems to
@@ -291,31 +292,31 @@ const drawLabel = (chart: ChartWithPlugin, index: number, isVertical: boolean, l
 */
 
 export const axisHoverPlugin = (isVertical: boolean, fullLabels: string[]): Plugin<'bar'> => ({
-  id: 'axisHoverPlugin',
-  afterInit: (chart: ChartWithPlugin) => {
+  id: 'axis_hover_plugin',
+  defaults: {
+      font: `800 12px ${(Chart.defaults.font as FontSpec).family}`,
+      minTooltipWidth: 140,
+      maxTooltipWidth: 240,
+      caretSize: 10,
+      xScaleAdjustment: -8,
+      yScaleAdjustment: -10,
+      xTextAdjustment: 10,
+      yTextAdjustment: -15,
+      tooltipBackgroundColor: '#000',
+      fontColor: '#FFF',
+      boxPadding: 10,
+      tooltipBackgroundRadius: 3,
+      tooltipDistanceFromZeroHorizontal: -5,
+      tooltipDistanceFromZeroVertical: 5,
+    },
+  afterInit: (chart: ChartWithPlugin,) => {
     // Initially set the plugin options
-    chart.axisHoverPlugin = {
+    chart.axis_hover_plugin_state = {    
       hoveredIndex: 0,
       isVertical: false,
       label: '',
       draw: false,
-      styleOpts: {
-        font: `800 12px ${(Chart.defaults.font as FontSpec).family}`,
-        minTooltipWidth: 140,
-        maxTooltipWidth: 240,
-        caretSize: 10,
-        xScaleAdjustment: -8,
-        yScaleAdjustment: -10,
-        xTextAdjustment: 10,
-        yTextAdjustment: -15,
-        tooltipBackgroundColor: '#000',
-        fontColor: '#FFF',
-        boxPadding: 10,
-        tooltipBackgroundRadius: 3,
-        tooltipDistanceFromZeroHorizontal: -5,
-        tooltipDistanceFromZeroVertical: 5,
-      },
-    };
+    }
   },
   beforeEvent(chart: ChartWithPlugin, args: BeforeEventArgs) {
     const event = args.event;
@@ -330,7 +331,7 @@ export const axisHoverPlugin = (isVertical: boolean, fullLabels: string[]): Plug
     // function is used.
     const relevantScale = isVertical ? scales.x : scales.y;
     if (!checkValidEvent(width, height, event, scales, isVertical) || event.type === 'mouseout') {
-      chart.axisHoverPlugin = { ...chart.axisHoverPlugin, draw: false };
+      chart.axis_hover_plugin_state = { draw: false };
       chart.draw();
       return;
     }
@@ -338,27 +339,24 @@ export const axisHoverPlugin = (isVertical: boolean, fullLabels: string[]): Plug
     const hoveredIndex = getClosestLabelIndex(relevantHoverPixel, relevantScale, fullLabels);
     const fullHoveredLabel = fullLabels[hoveredIndex];
     // We now have full label value, and index where to draw it.
-    chart.axisHoverPlugin = {
-      ...chart.axisHoverPlugin,
-      ...{
+    chart.axis_hover_plugin_state = {
         hoveredIndex,
         isVertical,
         label: fullHoveredLabel,
         draw: true,
       },
-    };
     chart.draw();
   },
-  afterDatasetsDraw: (chart: Required<ChartWithPlugin>) => {
-    if (!chart.axisHoverPlugin) {
+  afterDatasetsDraw: (chart: Required<ChartWithPlugin>, _, options: StyleOpts) => {
+    if (!chart.axis_hover_plugin_state) {
       return;
     }
-    const { hoveredIndex, label, draw, styleOpts } = chart.axisHoverPlugin as Required<AxisHoverPlugin>;
+    const { hoveredIndex, label, draw } = chart.axis_hover_plugin_state as Required<AxisHoverPlugin>;
     // This event also triggered by other events in chart, so need to check properties
     // trigger draw
     if (!draw) {
       return;
     }
-    drawLabel(chart, hoveredIndex, isVertical, label, styleOpts);
+    drawLabel(chart, hoveredIndex, isVertical, label, options);
   },
-});
+}) as Plugin<'bar'>;
