@@ -1,4 +1,4 @@
-import { Chart, ChartEvent, Scale, Plugin } from 'chart.js';
+import { Chart, ChartEvent, Scale, Plugin, FontSpec } from 'chart.js';
 
 /*
   Plugin to create tooltips on hover of graph. See axisHoverPlugin for overall flow.
@@ -355,7 +355,7 @@ export const axisHoverPlugin = (isVertical: boolean, fullLabels: string[]): Plug
       label: '',
       draw: false,
       styleOpts: {
-        font: `800 12px ${Chart.defaults.font.family}`,
+        font: `800 12px ${(Chart.defaults.font as FontSpec).family}`,
         minTooltipWidth: 140,
         maxTooltipWidth: 240,
         caretSize: 10,
