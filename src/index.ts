@@ -1,6 +1,5 @@
 import { Chart, ChartEvent, Scale, Plugin, FontSpec } from 'chart.js';
 
-
 /*
   Plugin to create tooltips on hover of graph. See axisHoverPlugin for overall flow.
 */
@@ -291,9 +290,10 @@ const drawLabel = (chart: ChartWithPlugin, index: number, isVertical: boolean, l
 
 */
 
-export const axisHoverPlugin = (isVertical: boolean, fullLabels: string[]): Plugin<'bar'> => ({
-  id: 'axis_hover_plugin',
-  defaults: {
+export const axisHoverPlugin = (isVertical: boolean, fullLabels: string[]): Plugin<'bar'> =>
+  ({
+    id: 'axis_hover_plugin',
+    defaults: {
       font: `800 12px ${(Chart.defaults.font as FontSpec).family}`,
       minTooltipWidth: 140,
       maxTooltipWidth: 240,
@@ -309,54 +309,54 @@ export const axisHoverPlugin = (isVertical: boolean, fullLabels: string[]): Plug
       tooltipDistanceFromZeroHorizontal: -5,
       tooltipDistanceFromZeroVertical: 5,
     },
-  afterInit: (chart: ChartWithPlugin,) => {
-    // Initially set the plugin options
-    chart.axis_hover_plugin_state = {    
-      hoveredIndex: 0,
-      isVertical: false,
-      label: '',
-      draw: false,
-    }
-  },
-  beforeEvent(chart: ChartWithPlugin, args: BeforeEventArgs) {
-    const event = args.event;
-    const { scales, height, width } = chart;
-    // We need to handle mouseout, so tooltips disapear when mouse leaves graph
-    if (!['mousemove', 'mouseout'].includes(event.type)) {
-      return;
-    }
-    // chart.js function getValueForPixel can possibly return undefined (if number outside of canvas area
-    // is passed). Do one check here that event pixel value is within canvas and after can assume that a number
-    // is always returned and that pixel value is not null. This removes constant undefined checks everytime
-    // function is used.
-    const relevantScale = isVertical ? scales.x : scales.y;
-    if (!checkValidEvent(width, height, event, scales, isVertical) || event.type === 'mouseout') {
-      chart.axis_hover_plugin_state = { draw: false };
-      chart.draw();
-      return;
-    }
-    const relevantHoverPixel = event[isVertical ? 'x' : 'y'] as number;
-    const hoveredIndex = getClosestLabelIndex(relevantHoverPixel, relevantScale, fullLabels);
-    const fullHoveredLabel = fullLabels[hoveredIndex];
-    // We now have full label value, and index where to draw it.
-    chart.axis_hover_plugin_state = {
+    afterInit: (chart: ChartWithPlugin) => {
+      // Initially set the plugin options
+      chart.axis_hover_plugin_state = {
+        hoveredIndex: 0,
+        isVertical: false,
+        label: '',
+        draw: false,
+      };
+    },
+    beforeEvent(chart: ChartWithPlugin, args: BeforeEventArgs) {
+      const event = args.event;
+      const { scales, height, width } = chart;
+      // We need to handle mouseout, so tooltips disapear when mouse leaves graph
+      if (!['mousemove', 'mouseout'].includes(event.type)) {
+        return;
+      }
+      // chart.js function getValueForPixel can possibly return undefined (if number outside of canvas area
+      // is passed). Do one check here that event pixel value is within canvas and after can assume that a number
+      // is always returned and that pixel value is not null. This removes constant undefined checks everytime
+      // function is used.
+      const relevantScale = isVertical ? scales.x : scales.y;
+      if (!checkValidEvent(width, height, event, scales, isVertical) || event.type === 'mouseout') {
+        chart.axis_hover_plugin_state = { draw: false };
+        chart.draw();
+        return;
+      }
+      const relevantHoverPixel = event[isVertical ? 'x' : 'y'] as number;
+      const hoveredIndex = getClosestLabelIndex(relevantHoverPixel, relevantScale, fullLabels);
+      const fullHoveredLabel = fullLabels[hoveredIndex];
+      // We now have full label value, and index where to draw it.
+      (chart.axis_hover_plugin_state = {
         hoveredIndex,
         isVertical,
         label: fullHoveredLabel,
         draw: true,
-      },
-    chart.draw();
-  },
-  afterDatasetsDraw: (chart: Required<ChartWithPlugin>, _, options: StyleOpts) => {
-    if (!chart.axis_hover_plugin_state) {
-      return;
-    }
-    const { hoveredIndex, label, draw } = chart.axis_hover_plugin_state as Required<AxisHoverPlugin>;
-    // This event also triggered by other events in chart, so need to check properties
-    // trigger draw
-    if (!draw) {
-      return;
-    }
-    drawLabel(chart, hoveredIndex, isVertical, label, options);
-  },
-}) as Plugin<'bar'>;
+      }),
+        chart.draw();
+    },
+    afterDatasetsDraw: (chart: Required<ChartWithPlugin>, _, options: StyleOpts) => {
+      if (!chart.axis_hover_plugin_state) {
+        return;
+      }
+      const { hoveredIndex, label, draw } = chart.axis_hover_plugin_state as Required<AxisHoverPlugin>;
+      // This event also triggered by other events in chart, so need to check properties
+      // trigger draw
+      if (!draw) {
+        return;
+      }
+      drawLabel(chart, hoveredIndex, isVertical, label, options);
+    },
+  } as Plugin<'bar'>);
