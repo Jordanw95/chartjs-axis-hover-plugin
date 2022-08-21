@@ -355,7 +355,7 @@ export const axisHoverPlugin = (isVertical: boolean, fullLabels: string[]): Plug
       label: '',
       draw: false,
       styleOpts: {
-        font: `800 12px Quicksand`,
+        font: `800 12px ${Chart.defaults.font.family}`,
         minTooltipWidth: 140,
         maxTooltipWidth: 240,
         caretSize: 10,
