@@ -1,7 +1,7 @@
 # chartjs-axis-hover-plugin
 
 Plugin that creates tooltips displaying tick name on hover of axis of charts, allowing the
-display of longer axis names.
+display of longer axis tick names.
 
 Live example (to be added). 
 
