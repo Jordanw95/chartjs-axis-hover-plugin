@@ -1,6 +1,6 @@
 {
   "name": "axis-hover-plugin",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Plugin to display tooltips on hover of the axis of chart.js charts.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -37,6 +37,11 @@
     "typescript": "^4.7.4"
   },
   "files": [
-    "lib/**/*"
-  ]
+    "lib/**/*",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jordanw95/chartjs-axis-hover-plugin.git"
+  }
 }
