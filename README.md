@@ -3,7 +3,9 @@
 Plugin that creates tooltips displaying tick name on hover of axis of charts, allowing the
 display of longer axis tick names.
 
-Live example (to be added). 
+## Live example 
+
+[View live example](https://jordanwatersdev.uk/)
 
 # Install
 
